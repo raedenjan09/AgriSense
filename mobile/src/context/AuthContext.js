@@ -10,12 +10,12 @@ const getApiUrl = () => {
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
     const ip = hostUri.split(':')[0];
-    return `http://${ip}:5000/api/auth`;
+    return `http://${ip}:5000/api`;
   }
-  return 'http://localhost:5000/api/auth';
+  return 'http://localhost:5000/api';
 };
 
-const API_URL = getApiUrl();
+export const API_URL = getApiUrl();
 console.log('Resolving API URL to:', API_URL);
 
 export const AuthProvider = ({ children }) => {
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const response = await fetch(`${API_URL}/register`, {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

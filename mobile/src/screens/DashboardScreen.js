@@ -13,7 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, API_URL } from '../context/AuthContext';
 import { generateCropInsights } from '../services/aiService';
 
 const DEFAULT_FIELDS = [
@@ -95,9 +95,65 @@ const DashboardScreen = () => {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiInsights, setAiInsights] = useState(null);
 
-  // Load fields on component mount
+  // Fetch latest sensor reading from backend server and update field 1
+  const fetchLatestSensorData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/sensors/latest`);
+      if (response.ok) {
+        const sensorData = await response.json();
+        if (sensorData && sensorData.soilMoisture !== undefined) {
+          setFields(prevFields => {
+            const targetFields = prevFields.length > 0 ? prevFields : DEFAULT_FIELDS;
+            const updatedFields = targetFields.map(field => {
+              if (field.id === '1') {
+                return {
+                  ...field,
+                  soilMoisture: sensorData.soilMoisture,
+                  temperature: sensorData.temperature,
+                  humidity: sensorData.humidity,
+                  waterLevel: sensorData.waterLevel
+                };
+              }
+              return field;
+            });
+            const actuatedFields = checkPumpActuation(updatedFields);
+            
+            // Persist in background
+            AsyncStorage.setItem('fields', JSON.stringify(actuatedFields)).catch(err => 
+              console.error('Error persisting fields:', err)
+            );
+            
+            // Update selected details modal if viewing field 1
+            setSelectedField(prev => {
+              if (prev && prev.id === '1') {
+                const updatedSelected = actuatedFields.find(f => f.id === '1');
+                return updatedSelected || prev;
+              }
+              return prev;
+            });
+            
+            return actuatedFields;
+          });
+        }
+      }
+    } catch (error) {
+      console.warn('Error fetching latest sensor data:', error);
+    }
+  };
+
+  // Load fields on component mount and setup 5-second polling interval
   useEffect(() => {
-    loadFields();
+    const init = async () => {
+      await loadFields();
+      await fetchLatestSensorData();
+    };
+    init();
+
+    const interval = setInterval(() => {
+      fetchLatestSensorData();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadFields = async () => {
