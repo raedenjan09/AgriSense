@@ -1,10 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Share, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAuth } from '../context/AuthContext';
 
 const ReportsScreen = () => {
   const navigation = useNavigation();
+  const { user } = useAuth();
+
+  const handleExportCSV = async () => {
+    try {
+      const headers = 'Day,Water Usage (L),Reservoir Level (cm),Field Name,Harvest Projection Progress\n';
+      let csvContent = headers;
+      
+      for (let i = 0; i < 7; i++) {
+        const dayData = waterUsage[i];
+        const resData = reservoirLevels[i];
+        const fieldData = fieldPerformances[i % fieldPerformances.length];
+        
+        csvContent += `${dayData.day},${dayData.amount},${resData.level},"${fieldData.name}",${Math.round(fieldData.progress * 100)}%\n`;
+      }
+      
+      await Share.share({
+        message: csvContent,
+        title: 'AgriSense Historical Sensor Report',
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to share CSV report: ' + error.message);
+    }
+  };
 
   // Mock weekly water usage data (Liters)
   const waterUsage = [
@@ -46,7 +70,9 @@ const ReportsScreen = () => {
           <Ionicons name="arrow-back" size={18} color="#64748b" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>AgriSense Analytics</Text>
-        <View style={styles.headerPlaceholder} />
+        <TouchableOpacity style={styles.exportButton} onPress={handleExportCSV}>
+          <Ionicons name="share-outline" size={20} color="#10B981" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView 
@@ -173,13 +199,23 @@ const ReportsScreen = () => {
 
       {/* Modern Floating Bottom Navigation Bar */}
       <View style={styles.bottomTabBar}>
-        <TouchableOpacity 
-          style={styles.tabItem} 
-          onPress={() => navigation.navigate('Dashboard')}
-        >
-          <Ionicons name="home-outline" size={20} color="#94a3b8" />
-          <Text style={styles.tabLabel}>Dashboard</Text>
-        </TouchableOpacity>
+        {user?.role !== 'Farmer' ? (
+          <TouchableOpacity 
+            style={styles.tabItem} 
+            onPress={() => navigation.navigate('Admin')}
+          >
+            <Ionicons name="options-outline" size={20} color="#94a3b8" />
+            <Text style={styles.tabLabel}>Admin</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={styles.tabItem} 
+            onPress={() => navigation.navigate('Dashboard')}
+          >
+            <Ionicons name="home-outline" size={20} color="#94a3b8" />
+            <Text style={styles.tabLabel}>Dashboard</Text>
+          </TouchableOpacity>
+        )}
         
         <TouchableOpacity 
           style={styles.tabItem} 
@@ -516,6 +552,16 @@ const styles = StyleSheet.create({
   tabLabelActive: {
     color: '#10B981',
     fontWeight: 'bold',
+  },
+  exportButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F3FDF9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E6F7F0',
   },
 });
 

@@ -4,56 +4,39 @@ import './Landing.css';
 
 function Landing() {
   return (
-    <div className="landing">
-      <header className="landing-header">
-        <nav className="navbar">
-          <div className="logo">AgriSense</div>
-          <div className="nav-links">
-            <Link to="/login" className="nav-link">Login</Link>
-            <Link to="/register" className="nav-link btn-primary">Sign Up</Link>
-          </div>
-        </nav>
-      </header>
+    <div className="landing-screen">
+      <div className="landing-overlay">
+        
+        {/* Header */}
+        <header className="landing-header">
+          <div className="logo">🌾 AgriSense</div>
+        </header>
 
-      <main className="landing-main">
-        <section className="hero">
-          <div className="hero-content">
-            <h1>Smart Agriculture Solutions</h1>
-            <p>Monitor your crops, optimize irrigation, and maximize yield with AgriSense.</p>
-            <div className="hero-buttons">
-              <Link to="/register" className="btn btn-primary">Get Started</Link>
-              <Link to="/login" className="btn btn-secondary">Login</Link>
+        {/* Content */}
+        <main className="landing-content">
+          <div className="glass-card">
+            <h1 className="title">Smart Agriculture<br />At Your Fingertips</h1>
+            <p className="subtitle">
+              Monitor your crops in real-time, optimize resource usage, and maximize yields with precision sensing technology.
+            </p>
+            
+            <div className="button-container">
+              <Link to="/register" className="btn-primary">
+                Get Started
+              </Link>
+              <Link to="/login" className="btn-secondary">
+                Sign In
+              </Link>
             </div>
           </div>
-          <div className="hero-image">
-            <div className="placeholder-image">
-              🌾
-            </div>
-          </div>
-        </section>
+        </main>
 
-        <section className="features">
-          <h2>Our Features</h2>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <h3>Real-time Monitoring</h3>
-              <p>Track soil moisture, temperature, and humidity in real-time.</p>
-            </div>
-            <div className="feature-card">
-              <h3>Smart Irrigation</h3>
-              <p>Automate watering based on crop needs and weather conditions.</p>
-            </div>
-            <div className="feature-card">
-              <h3>Data Analytics</h3>
-              <p>Get insights and recommendations to improve your yield.</p>
-            </div>
-          </div>
-        </section>
-      </main>
+        {/* Footer */}
+        <footer className="landing-footer">
+          <p>© 2026 AgriSense. Empowering Farmers.</p>
+        </footer>
 
-      <footer className="landing-footer">
-        <p>&copy; 2026 AgriSense. All rights reserved.</p>
-      </footer>
+      </div>
     </div>
   );
 }

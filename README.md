@@ -8,7 +8,8 @@ Web and mobile application for agricultural sensing and management.
 AgriSense/
 ├── backend/    # Node.js/Express + MongoDB backend
 ├── web/        # React web app (Vite)
-└── mobile/     # React Native mobile app (Expo)
+├── mobile/     # React Native mobile app (Expo)
+└── firmware/   # Arduino/ESP32 firmware code (.ino)
 ```
 
 ## Getting Started

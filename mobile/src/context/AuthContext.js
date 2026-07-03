@@ -77,12 +77,42 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         await AsyncStorage.setItem('user', JSON.stringify(data));
         setUser(data);
-        return { success: true };
+        return { success: true, role: data.role };
       } else {
         return { success: false, message: data.message };
       }
     } catch (error) {
       return { success: false, message: 'Server error' };
+    }
+  };
+
+  const updateProfile = async (name, email, profilePicture) => {
+    try {
+      if (!user || !user.token) {
+        return { success: false, message: 'Not authenticated' };
+      }
+
+      const response = await fetch(`${API_URL}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        body: JSON.stringify({ name, email, profilePicture }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        await AsyncStorage.setItem('user', JSON.stringify(data));
+        setUser(data);
+        return { success: true };
+      } else {
+        return { success: false, message: data.message };
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      return { success: false, message: 'Server error updating profile' };
     }
   };
 
@@ -96,7 +126,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, register, login, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

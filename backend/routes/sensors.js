@@ -1,5 +1,6 @@
 const express = require('express');
 const SensorReading = require('../models/SensorReading');
+const Threshold = require('../models/Threshold');
 
 const router = express.Router();
 
@@ -65,6 +66,52 @@ router.get('/history', async (req, res) => {
   } catch (error) {
     console.error('Error fetching sensor history:', error);
     res.status(500).json({ success: false, message: 'Server error fetching sensor history', error: error.message });
+  }
+});
+
+// GET: Fetches global alarm threshold configurations
+router.get('/thresholds', async (req, res) => {
+  try {
+    const threshold = await Threshold.findOne();
+    if (!threshold) {
+      // Return defaults if none are configured in database yet
+      return res.json({
+        moistureMin: 50,
+        tempMax: 32,
+        reservoirMin: 2.0
+      });
+    }
+    res.json(threshold);
+  } catch (error) {
+    console.error('Error fetching global thresholds:', error);
+    res.status(500).json({ success: false, message: 'Server error fetching thresholds', error: error.message });
+  }
+});
+
+// POST: Creates or updates the global threshold configurations
+router.post('/thresholds', async (req, res) => {
+  try {
+    const { moistureMin, tempMax, reservoirMin } = req.body;
+    let threshold = await Threshold.findOne();
+    
+    if (threshold) {
+      threshold.moistureMin = moistureMin !== undefined ? moistureMin : threshold.moistureMin;
+      threshold.tempMax = tempMax !== undefined ? tempMax : threshold.tempMax;
+      threshold.reservoirMin = reservoirMin !== undefined ? reservoirMin : threshold.reservoirMin;
+      await threshold.save();
+    } else {
+      threshold = new Threshold({
+        moistureMin: moistureMin !== undefined ? moistureMin : 50,
+        tempMax: tempMax !== undefined ? tempMax : 32,
+        reservoirMin: reservoirMin !== undefined ? reservoirMin : 2.0
+      });
+      await threshold.save();
+    }
+    
+    res.json({ success: true, message: 'Global thresholds updated successfully', data: threshold });
+  } catch (error) {
+    console.error('Error saving global thresholds:', error);
+    res.status(500).json({ success: false, message: 'Server error saving thresholds', error: error.message });
   }
 });
 

@@ -15,6 +15,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/sensors', require('./routes/sensors'));
+app.use('/api/weather', require('./routes/weather'));
 
 app.get('/', (req, res) => {
   res.send('AgriSense Backend is running!');

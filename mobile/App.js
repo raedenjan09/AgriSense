@@ -6,7 +6,8 @@ import LandingScreen from './src/screens/LandingScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
-import ReportsScreen from './src/screens/ReportsScreen';
+import AdminScreen from './src/screens/AdminScreen';
+import AdminReportsScreen from './src/screens/AdminReportsScreen';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -22,16 +23,22 @@ const AppNavigator = () => {
     );
   }
 
+  // Determine starting route dynamically based on active session's role
+  const initialRoute = user 
+    ? (user.role === 'Farmer' ? "Dashboard" : "Admin") 
+    : "Landing";
+
   return (
     <Stack.Navigator 
-      initialRouteName={user ? "Dashboard" : "Landing"}
+      initialRouteName={initialRoute}
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Landing" component={LandingScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Dashboard" component={DashboardScreen} />
-      <Stack.Screen name="Reports" component={ReportsScreen} />
+      <Stack.Screen name="Admin" component={AdminScreen} />
+      <Stack.Screen name="AdminReports" component={AdminReportsScreen} />
     </Stack.Navigator>
   );
 };

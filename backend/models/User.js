@@ -21,15 +21,24 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
+  profilePicture: {
+    type: String,
+    default: ''
+  },
+  role: {
+    type: String,
+    enum: ['Farmer', 'Extension Worker', 'Admin'],
+    default: 'Farmer'
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function() {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
